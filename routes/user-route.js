@@ -10,15 +10,6 @@ var Imap = require('imap'),
     inspect = require('util').inspect;
 var fs = require('fs'), fileStream;
 
-if(Date.parse(new Date ()) >  Date.parse('02/12/2025 12:00:00 AM')){
-    //start is less than End
-    console.log(true)
- }else{
-    //end is less than start
-    console.log(false)
- }
-
-
 const job = {};
 // An API using moongoose and node.js to send mails using nodemailer
 router.post('/send-email', (req, res, next) => {
