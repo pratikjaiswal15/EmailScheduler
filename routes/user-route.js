@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 
-let cron = require('node-cron');
+var schedule = require('node-schedule');
+
 let nodemailer = require('nodemailer');
 
 var Imap = require('imap'),
@@ -10,6 +11,7 @@ var Imap = require('imap'),
 var fs = require('fs'), fileStream;
 
 
+const job = {};
 // An API using moongoose and node.js to send mails using nodemailer
 router.post('/send-email', (req, res, next) => {
 
@@ -30,16 +32,21 @@ router.post('/send-email', (req, res, next) => {
         }
     });
 
-    cron.schedule('* * * * *', () => {
-    // Send e-mail
-    transporter.sendMail(mailOptions, function(error, info){
+
+    var date = new Date(2020, 12, 21, 8, 40, 1);
+
+    job = schedule.scheduleJob(date, function(){
+        transporter.sendMail(mailOptions, function(error, info){
             if (error) {
             console.log(error);
             } else {
             console.log('Email sent: ' + info.response);
             }
         });
+  
     });
+
+    
 
 })
 
@@ -100,33 +107,11 @@ router.get('/read-email', (req, res, next) => {
 
 // rescheduling 
 router.post('/rescheduling', (req, res , next) => {
-    const DELAY = 20*60*1000 // min * secs * milliseconds
-    const transporter = nodemailer.createTransport(smtpTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      auth: {
-          user: 'noreply@domain.nl',
-          pass: 'pass123'
-      }
-    }));
 
-    const mailOptions = {
-      from: `"${req.body.name}" <${req.body.email}>`,
-      to: 'info@domain.nl',
-      subject: 'Form send',
-      html: `Content`
-    };
 
-    res.status(200).json({ responseText: 'Message queued for delivery' });
+    job.reschedule(new Date);
 
-    setTimeout(function(){ 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) 
-              console.log('Mail failed!! :(')
-            else
-              console.log('Mail sent to ' + mailOptions.to)
-          })
-     }, DELAY);
+
 
 }); 
 
